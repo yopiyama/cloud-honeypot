@@ -1,0 +1,3 @@
+[submodule "pot/cowrie"]
+	path = pot/cowrie
+	url = https://github.com/cowrie/cowrie.git
