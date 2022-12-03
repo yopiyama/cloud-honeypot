@@ -31,73 +31,41 @@ resource "aws_ecs_cluster" "honeypot-cluster" {
 
 resource "aws_ecs_cluster_capacity_providers" "cluster-capacity" {
   capacity_providers = ["FARGATE"]
-  cluster_name = aws_ecs_cluster.honeypot-cluster.name
+  cluster_name       = aws_ecs_cluster.honeypot-cluster.name
 }
 
+resource "aws_iam_role_policy" "test_policy" {
+  name = "allow-s3-put-object-to-honeypot-log-bucket"
+  role = aws_iam_role.ecs-service-role.id
 
-resource "aws_ecr_repository" "cowrie-repo" {
-  name                 = "cowrie"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:PutObject",
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.log-bucket.bucket}/*"
+      },
+    ]
+  })
 }
 
-resource "aws_ecr_repository" "mysql-honeypotd-repo" {
-  name                 = "mysql-honeypotd"
-  image_tag_mutability = "MUTABLE"
+resource "aws_iam_role" "ecs-service-role" {
+  name = "ecs-service-role"
 
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-# Images
-
-resource "null_resource" "cowrie-repo-push" {
-  triggers = {
-    image_tag = var.cowrie_image_tag
-  }
-
-  provisioner "local-exec" {
-    command = <<EOT
-      aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-
-      # docker pull --platform linux/amd64 $IMAGE_TAG
-      # docker tag $IMAGE_TAG $REPO_URL:latest
-      # docker build --platform linux/amd64 -t cowrie:original -f ../pot/Cowrie/cowrie/docker/Dockerfile ../pot/Cowrie/cowrie/
-
-      docker build --platform linux/amd64 -t $REPO_URL:$IMAGE_TAG ../pot/Cowrie/
-      docker push $REPO_URL:$IMAGE_TAG
-    EOT
-
-    environment = {
-      AWS_REGION     = var.region
-      AWS_ACCOUNT_ID = var.account_id
-      REPO_URL       = aws_ecr_repository.cowrie-repo.repository_url
-      IMAGE_TAG = var.cowrie_image_tag
-    }
-  }
-}
-
-resource "null_resource" "mysql-honeypotd-push" {
-  triggers = {
-    image_tag = var.mysql_honeypotd_image_tag
-  }
-
-  provisioner "local-exec" {
-    command = <<EOT
-      aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-      docker build --platform linux/amd64 -t $REPO_URL:$IMAGE_TAG ../pot/mysql-honeypotd/
-      docker push $REPO_URL:$IMAGE_TAG
-    EOT
-
-    environment = {
-      AWS_REGION     = var.region
-      AWS_ACCOUNT_ID = var.account_id
-      REPO_URL       = aws_ecr_repository.mysql-honeypotd-repo.repository_url
-      IMAGE_TAG = var.mysql_honeypotd_image_tag
-    }
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
 }

@@ -7,12 +7,8 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
         environment = [
         ]
         logConfiguration = {
-          logDriver = "awslogs"
+          logDriver = "awsfirelens"
           options = {
-            awslogs-create-group  = "true"
-            awslogs-group         = aws_cloudwatch_log_group.honeypot-log-mysql-honeypotd.name
-            awslogs-region        = "ap-northeast-1"
-            awslogs-stream-prefix = "mysql-honeypotd"
           }
           secretOptions = []
         }
@@ -24,11 +20,44 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
             protocol      = "tcp"
           }
         ]
+        essential = true
       },
+      {
+        name      = "log-router"
+        image     = "${aws_ecr_repository.log-router-repo.repository_url}:latest"
+        essential = true
+        firelensConfiguration = {
+          type = "fluentbit"
+          options = {
+            config-file-type  = "file"
+            config-file-value = "/log_destinations.conf"
+          }
+        }
+        environment = [
+          {
+            name  = "S3_BUCKET"
+            value = aws_s3_bucket.log-bucket.bucket
+          },
+          {
+            name  = "LOG_SOURCE"
+            value = "mysql-honeypotd"
+          }
+        ]
+        logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            awslogs-create-group  = "true"
+            awslogs-group         = aws_cloudwatch_log_group.firelens-log.name
+            awslogs-region        = var.region
+            awslogs-stream-prefix = "firelens-mysql-honeypotd-sidecar"
+          }
+        }
+      }
     ]
   )
   family                   = "mysql-honeypotd-service"
   execution_role_arn       = "arn:aws:iam::${var.account_id}:role/ecsTaskExecutionRole"
+  task_role_arn            = aws_iam_role.ecs-service-role.arn
   cpu                      = "256"
   memory                   = "512"
   network_mode             = "awsvpc"

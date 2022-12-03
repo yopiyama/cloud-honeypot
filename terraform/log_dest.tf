@@ -39,6 +39,10 @@ resource "aws_cloudwatch_log_group" "honeypot-log-mysql-honeypotd" {
   name = "/ecs/honeypot-cluster/mysql-honeypotd"
 }
 
+resource "aws_cloudwatch_log_group" "firelens-log" {
+  name = "/ecs/honeypot-cluster/firelens"
+}
+
 resource "aws_cloudwatch_query_definition" "parse-cowrie-query" {
   name = "parse-cowrie"
 
