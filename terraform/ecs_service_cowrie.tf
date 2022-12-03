@@ -70,7 +70,7 @@ resource "aws_ecs_task_definition" "cowrie-service-def" {
     ]
   )
   family                   = "cowrie-service"
-  execution_role_arn       = "arn:aws:iam::${var.account_id}:role/ecsTaskExecutionRole"
+  execution_role_arn       = aws_iam_role.task-execution-role.arn
   task_role_arn            = aws_iam_role.ecs-service-role.arn
   cpu                      = "256"
   memory                   = "512"

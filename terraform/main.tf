@@ -34,7 +34,7 @@ resource "aws_ecs_cluster_capacity_providers" "cluster-capacity" {
   cluster_name       = aws_ecs_cluster.honeypot-cluster.name
 }
 
-resource "aws_iam_role_policy" "test_policy" {
+resource "aws_iam_role_policy" "honeypot-log-policy" {
   name = "allow-s3-put-object-to-honeypot-log-bucket"
   role = aws_iam_role.ecs-service-role.id
 
@@ -68,4 +68,50 @@ resource "aws_iam_role" "ecs-service-role" {
       },
     ]
   })
+}
+
+resource "aws_iam_role_policy" "task-execution-policy" {
+  role = aws_iam_role.task-execution-role.id
+
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "ecr:GetAuthorizationToken",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage",
+            "logs:CreateLogStream",
+            "logs:CreateLogGroup",
+            "logs:PutLogEvents"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        }
+      ]
+    }
+  )
+}
+
+
+resource "aws_iam_role" "task-execution-role" {
+  name = "honeypot-ecs-TaskExecution"
+
+  assume_role_policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Principal = {
+            Service = "ecs-tasks.amazonaws.com"
+          }
+          Effect = "Allow"
+          Sid    = ""
+        }
+      ]
+    }
+  )
 }
