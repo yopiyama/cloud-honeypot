@@ -1,3 +1,6 @@
 [submodule "pot/cowrie"]
 	path = pot/Cowrie/cowrie
 	url = https://github.com/cowrie/cowrie.git
+[submodule "pot/mysql-honeypotd"]
+	path = pot/mysql-honeypotd
+	url = https://github.com/sjinks/mysql-honeypotd.git
