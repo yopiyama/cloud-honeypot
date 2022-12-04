@@ -37,3 +37,4 @@ terraform.rc
 lambda/python/*
 lambda/uploads/*
 *.zip
+backend.conf
