@@ -3,8 +3,16 @@ import re
 import json
 import urllib
 import datetime as dt
+from logging import getLogger, DEBUG, INFO, WARNING, ERROR, StreamHandler
 import boto3
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
+
+logger = getLogger(__name__)
+handler = StreamHandler()
+handler.setLevel(DEBUG)
+logger.setLevel(DEBUG)
+logger.addHandler(handler)
+logger.propagate = False
 
 S3_CLIENT = boto3.client('s3')
 OS_ENDPOIT = os.getenv('OS_ENDPOINT')
@@ -25,8 +33,8 @@ def get_object_list(event):
 def get_object(bucket, key):
     try:
         response = S3_CLIENT.get_object(Bucket=bucket, Key=key)
-        print("CONTENT TYPE: " + response['ContentType'])
-        return response['Body'].read()
+        logger.info('Get S3 Object: ' + bucket + '/' + key)
+        return response['Body'].read().decode('UTF-8')
     except Exception as e:
         print(e)
         print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
@@ -36,6 +44,8 @@ def get_object(bucket, key):
 def parse_cowrie_log(logdata):
     out_log = []
     for line in logdata.split('\n'):
+        if line == '':
+            continue
         out_log.append(json.loads(line))
         out_log[-1]['log'] = json.loads(out_log[-1]['log'])
 
@@ -82,8 +92,9 @@ def put_logs_to_opensearch(os_client, logdata):
 
 
 def lambda_handler(event, _):
-    object_list = get_object_list(event)
+    logger.info(event)
 
+    object_list = get_object_list(event)
     parsed_data = []
     for obj in object_list:
         bucket = obj[0]
