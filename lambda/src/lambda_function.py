@@ -6,12 +6,12 @@ import datetime as dt
 from logging import getLogger, DEBUG, INFO, WARNING, ERROR, StreamHandler
 import boto3
 from requests_aws4auth import AWS4Auth
-from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
+from opensearchpy import OpenSearch, RequestsHttpConnection
 
 logger = getLogger(__name__)
 handler = StreamHandler()
-handler.setLevel(DEBUG)
-logger.setLevel(DEBUG)
+handler.setLevel(INFO)
+logger.setLevel(INFO)
 logger.addHandler(handler)
 logger.propagate = False
 
@@ -37,8 +37,9 @@ def get_object(bucket, key):
         logger.info('Get S3 Object: ' + bucket + '/' + key)
         return response['Body'].read().decode('UTF-8')
     except Exception as e:
-        print(e)
-        print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
+        logger.error(e)
+        logger.error(
+            f'Error getting object {key} from bucket {bucket}. Make sure they exist and your bucket is in the same region as this function.')
         raise e
 
 
@@ -54,20 +55,17 @@ def parse_cowrie_log(logdata):
 
 
 def parse_mysql_honeypotd_log(logdata):
+    out_log = []
     log_format = r''
 
     for line in logdata.split('\n'):
+        if line == '':
+            continue
+        out_log.append(json.loads(line))
         pot_log = json.loads(line)['log']
-        print(pot_log)
+        logger.debug(pot_log)
 
     return logdata
-
-
-# def put_logdata_as_parquet(bucket, key, logdata):
-#     # S3_CLIENT.put_object(Bucket=bucket, Key=key, Body=logdata.encode('UTF-8'))
-#     df = pandas.DataFrame(logdata)
-#     df.to_parquet('/tmp/tmp.parquet')
-#     S3_CLIENT.upload_file('/tmp/tmp.parquet', bucket, key)
 
 
 def create_os_client():
@@ -107,13 +105,9 @@ def lambda_handler(event, _):
         object_body = get_object(bucket, obj_key)
         if 'cowrie/' in obj_key:
             parsed_data.extend(parse_cowrie_log(object_body))
-            # parsed_log_key = obj_key.replace('RawLogs/', 'ParsedLogs/')
-            # parsed_log_key += '.parquet'
-            # put_logdata_as_parquet(bucket, parsed_log_key, parsed_data)
 
         elif 'mysql-honeypotd/' in obj_key:
-            # parsed_data = parse_mysql_honeypotd_log(object_body)
-            pass
+            parsed_data.extend(parse_mysql_honeypotd_log(object_body))
         else:
             raise Exception
 
