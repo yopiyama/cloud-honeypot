@@ -65,7 +65,7 @@ def parse_mysql_honeypotd_log(logdata):
         pot_log = json.loads(line)['log']
         logger.debug(pot_log)
 
-    return logdata
+    return out_log
 
 
 def create_os_client():
