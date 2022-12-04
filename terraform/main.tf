@@ -1,3 +1,13 @@
+terraform {
+  required_version = "~> 1.3.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.45.0"
+    }
+  }
+}
+
 provider "aws" { region = "ap-northeast-1" }
 provider "null" {}
 
@@ -13,6 +23,9 @@ variable "cowrie_image_tag" {
 variable "mysql_honeypotd_image_tag" {
   default = "latest"
 }
+
+variable "os_endpoint" {}
+
 
 resource "aws_ecs_cluster" "honeypot-cluster" {
   name = "honeypot-cluster"

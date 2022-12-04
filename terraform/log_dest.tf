@@ -26,17 +26,27 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "log-bucket-encryp
   }
 }
 
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.parser-lambda.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.log-bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.log-bucket.bucket
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.parser-lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "RawLogs/"
+  }
+}
+
 resource "aws_s3_bucket_acl" "log-bucket-acl" {
   bucket = aws_s3_bucket.log-bucket.id
   acl    = "private"
-}
-
-resource "aws_cloudwatch_log_group" "honeypot-log-cowrie" {
-  name = "/ecs/honeypot-cluster/cowrie"
-}
-
-resource "aws_cloudwatch_log_group" "honeypot-log-mysql-honeypotd" {
-  name = "/ecs/honeypot-cluster/mysql-honeypotd"
 }
 
 resource "aws_cloudwatch_log_group" "firelens-log" {
