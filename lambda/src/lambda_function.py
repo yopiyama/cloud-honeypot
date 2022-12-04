@@ -5,6 +5,7 @@ import urllib
 import datetime as dt
 from logging import getLogger, DEBUG, INFO, WARNING, ERROR, StreamHandler
 import boto3
+from requests_aws4auth import AWS4Auth
 from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
 
 logger = getLogger(__name__)
@@ -71,8 +72,12 @@ def parse_mysql_honeypotd_log(logdata):
 
 def create_os_client():
     os_region = 'ap-northeast-1'
+    service = 'aoss'
     credentials = boto3.Session().get_credentials()
-    awsauth = AWSV4SignerAuth(credentials, os_region)
+    # awsauth = AWSV4SignerAuth(credentials, os_region)
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
+                       os_region, service, session_token=credentials.token)
+
     os_client = OpenSearch(
         hosts=[{'host': OS_ENDPOIT, 'port': 443}], http_auth=awsauth,
         use_ssl=True, http_compress=True, verify_certs=True,

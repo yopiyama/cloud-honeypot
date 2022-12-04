@@ -1,3 +1,4 @@
 boto3
 pandas
 opensearch-py
+requests-aws4auth
