@@ -1,0 +1,3 @@
+bucket = "some-bucket-name"
+key    = "honeypot-cloud/terraform.tfstate"
+region = "ap-northeast-1"
