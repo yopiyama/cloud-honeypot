@@ -42,18 +42,3 @@ resource "aws_cloudwatch_log_group" "honeypot-log-mysql-honeypotd" {
 resource "aws_cloudwatch_log_group" "firelens-log" {
   name = "/ecs/honeypot-cluster/firelens"
 }
-
-resource "aws_cloudwatch_query_definition" "parse-cowrie-query" {
-  name = "parse-cowrie"
-
-  log_group_names = [
-    aws_cloudwatch_log_group.honeypot-log-cowrie.name
-  ]
-
-  query_string = <<EOF
-  fields @timestamp, @message
-  | sort @timestamp desc
-  | parse @message "*-*-*T*:*:*+* [*] *" as year, month, day, hour, minute, sec, zone, location, log
-  | display month, day, hour, minute, sec, location, log
-EOF
-}
