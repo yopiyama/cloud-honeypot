@@ -6,13 +6,13 @@ data "archive_file" "parser-lambda-source" {
 
 resource "null_resource" "pip_install" {
   provisioner "local-exec" {
-    command = "pip3 install -r ../lambda/src/requirements.txt -t ../lambda/python"
+    command = "pip install -r ../lambda/src/requirements.txt -t ../lambda/module/python"
   }
 }
 
 data "archive_file" "lambda-layer-source" {
   type        = "zip"
-  source_dir  = "../lambda/python/"
+  source_dir  = "../lambda/module/"
   output_path = "../lambda/uploads/layer.zip"
 }
 
