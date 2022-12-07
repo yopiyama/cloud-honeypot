@@ -2,7 +2,7 @@
 	"name": "Cloud-HoneyPot",
 	"build": {
 		"dockerfile": "Dockerfile",
-		"context": "..",
+		"context": ".",
 		"args": {}
 	},
 	"features": {
