@@ -1,5 +1,5 @@
 {
-	"name": "Ubuntu",
+	"name": "Cloud-HoneyPot",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "..",
