@@ -72,7 +72,6 @@ def create_os_client():
     os_region = 'ap-northeast-1'
     service = 'aoss'
     credentials = boto3.Session().get_credentials()
-    # awsauth = AWSV4SignerAuth(credentials, os_region)
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
                        os_region, service, session_token=credentials.token)
 
@@ -91,7 +90,8 @@ def put_logs_to_opensearch(os_client, logdata):
         req = {'index': {'_index': index_name}}
         load_data += json.dumps(req) + '\n' + json.dumps(log) + '\n'
 
-    os_client.bulk(load_data)
+    response = os_client.bulk(load_data)
+    logger.info(response)
 
 
 def lambda_handler(event, _):

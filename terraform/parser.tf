@@ -1,12 +1,12 @@
 data "archive_file" "parser-lambda-source" {
   type        = "zip"
-  source_dir  = "../lambda/src/"
-  output_path = "../lambda/uploads/function.zip"
+  source_dir  = "../lambda/src/log-parser/"
+  output_path = "../lambda/uploads/parser-function.zip"
 }
 
 resource "null_resource" "pip_install" {
   provisioner "local-exec" {
-    command = "pip install -r ../lambda/src/requirements.txt -t ../lambda/module/python"
+    command = "pip install -r ../lambda/src/log-parser/requirements.txt -t ../lambda/module/python"
   }
 }
 
