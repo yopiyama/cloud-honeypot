@@ -24,7 +24,8 @@
 				"hashicorp.terraform",
 				"ms-azuretools.vscode-docker",
 				"njpwerner.autodocstring",
-				"mechatroner.rainbow-csv"
+				"mechatroner.rainbow-csv",
+				"GitHub.vscode-pull-request-github"
 			]
 		}
 	}
