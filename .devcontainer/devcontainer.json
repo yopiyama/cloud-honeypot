@@ -12,7 +12,22 @@
 	},
 	"mounts": [
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
-	]
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"DavidAnson.vscode-markdownlint",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"oderwat.indent-rainbow",
+				"hashicorp.terraform",
+				"ms-azuretools.vscode-docker",
+				"njpwerner.autodocstring",
+				"mechatroner.rainbow-csv"
+			]
+		}
+	}
 	// Features to add to the dev container. More info: https://containers.dev/implementors/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
