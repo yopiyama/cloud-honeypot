@@ -1,3 +1,7 @@
+variable "cowrie-desired_count" {
+  default = "1"
+}
+
 resource "aws_ecs_task_definition" "cowrie-service-def" {
   container_definitions = jsonencode(
     [
@@ -94,7 +98,7 @@ resource "aws_ecs_service" "cowrie-service" {
 
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-  desired_count                      = 1
+  desired_count                      = var.cowrie-desired_count
   enable_ecs_managed_tags            = true
   enable_execute_command             = false
   health_check_grace_period_seconds  = 0
