@@ -4,7 +4,16 @@ data "archive_file" "parser-lambda-source" {
   output_path = "../lambda/uploads/parser-function.zip"
 }
 
+data "archive_file" "check-requirements-update" {
+  type        = "zip"
+  source_dir  = "../lambda/src/log-parser/requirements.txt"
+  output_path = "../lambda/tmp/requirements.txt.zip"
+}
+
 resource "null_resource" "pip_install" {
+  triggers = {
+    require_hash = data.archive_file.check-requirements-update.output_base64sha256
+  }
   provisioner "local-exec" {
     command = "pip install -r ../lambda/src/log-parser/requirements.txt -t ../lambda/module/python"
   }
