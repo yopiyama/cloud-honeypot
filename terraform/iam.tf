@@ -135,9 +135,6 @@ resource "aws_iam_role_policy" "opensearch-put-policy" {
       Statement = [
         {
           Action = [
-            # "aoss:*",
-            # "es:ESHttpPut",
-            # "es:ESHttpPost",
             "aoss:CreateCollectionItems",
             "aoss:CreateIndex",
             "aoss:DeleteIndex",
