@@ -180,7 +180,7 @@ data "aws_iam_policy" "ssm-automation-basic-role" {
 
 
 
-resource "aws_iam_role_policy" "ecs-service-automation--policy" {
+resource "aws_iam_role_policy" "ecs-service-automation-policy" {
   role = aws_iam_role.ecs-service-automation-role.id
 
   policy = jsonencode(
@@ -189,9 +189,9 @@ resource "aws_iam_role_policy" "ecs-service-automation--policy" {
       Statement = [
         {
           Action = [
-
+            "ecs:UpdateService"
           ]
-          Effect   = "ecs:UpdateService"
+          Effect   = "Allow"
           Resource = "arn:aws:ecs:${var.region}:${var.account_id}:service/${aws_ecs_cluster.honeypot-cluster.name}/*"
         }
       ]
