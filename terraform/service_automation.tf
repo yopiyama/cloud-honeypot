@@ -2,6 +2,7 @@
 resource "aws_ssm_document" "stop-pot-services" {
   name          = "stop_pot_services"
   document_type = "Automation"
+  document_format = "YAML"
 
   content = <<DOC
 schemaVersion: '1.2'
@@ -33,6 +34,7 @@ DOC
 resource "aws_ssm_document" "start-pot-services" {
   name          = "start_pot_services"
   document_type = "Automation"
+  document_format = "YAML"
 
   content = <<DOC
 schemaVersion: '1.2'
