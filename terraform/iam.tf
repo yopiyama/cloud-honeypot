@@ -175,7 +175,7 @@ resource "aws_iam_role_policy_attachment" "attach-ssm-automation" {
 }
 
 data "aws_iam_policy" "ssm-automation-basic-role" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRolee"
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole"
 }
 
 
@@ -192,7 +192,7 @@ resource "aws_iam_role_policy" "ecs-service-automation--policy" {
 
           ]
           Effect   = "ecs:UpdateService"
-          Resource = "arn:aws:ecs:${var.region}:094940149171:service/${aws_ecs_cluster.honeypot-cluster}/*"
+          Resource = "arn:aws:ecs:${var.region}:${var.account_id}:service/${aws_ecs_cluster.honeypot-cluster.name}/*"
         }
       ]
     }

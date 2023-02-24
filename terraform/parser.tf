@@ -6,7 +6,7 @@ data "archive_file" "parser-lambda-source" {
 
 data "archive_file" "check-requirements-update" {
   type        = "zip"
-  source_dir  = "../lambda/src/log-parser/requirements.txt"
+  source_file  = "../lambda/src/log-parser/requirements.txt"
   output_path = "../lambda/tmp/requirements.txt.zip"
 }
 
