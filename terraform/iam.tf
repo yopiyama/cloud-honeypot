@@ -158,11 +158,13 @@ resource "aws_iam_role" "ecs-service-automation-role" {
     Statement = [
       {
         Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
         Principal = {
-          Service = "ssm.amazonaws.com"
+          Service = [
+            "events.amazonaws.com"
+          ]
         }
+        Effect = "Allow"
+        Sid = ""
       }
     ]
   })
@@ -177,7 +179,6 @@ resource "aws_iam_role_policy_attachment" "attach-ssm-automation" {
 data "aws_iam_policy" "ssm-automation-basic-role" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole"
 }
-
 
 
 resource "aws_iam_role_policy" "ecs-service-automation-policy" {
