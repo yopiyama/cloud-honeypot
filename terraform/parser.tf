@@ -6,7 +6,7 @@ data "archive_file" "parser-lambda-source" {
 
 data "archive_file" "check-requirements-update" {
   type        = "zip"
-  source_file  = "../lambda/src/log-parser/requirements.txt"
+  source_file = "../lambda/src/log-parser/requirements.txt"
   output_path = "../lambda/tmp/requirements.txt.zip"
 }
 
@@ -20,12 +20,14 @@ resource "null_resource" "pip_install" {
 }
 
 data "archive_file" "lambda-layer-source" {
+  depends_on  = [null_resource.pip_install]
   type        = "zip"
   source_dir  = "../lambda/module/"
   output_path = "../lambda/uploads/layer.zip"
 }
 
 resource "aws_lambda_layer_version" "lambda-layer" {
+  depends_on          = [data.archive_file.lambda-layer-source]
   layer_name          = "parser-layer"
   filename            = data.archive_file.lambda-layer-source.output_path
   compatible_runtimes = ["python3.9"]
