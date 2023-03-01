@@ -34,15 +34,15 @@ resource "aws_lambda_permission" "allow_bucket" {
   source_arn    = aws_s3_bucket.log-bucket.arn
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.log-bucket.bucket
+# resource "aws_s3_bucket_notification" "bucket_notification" {
+#   bucket = aws_s3_bucket.log-bucket.bucket
 
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.parser-lambda.arn
-    events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = "RawLogs/"
-  }
-}
+#   lambda_function {
+#     lambda_function_arn = aws_lambda_function.parser-lambda.arn
+#     events              = ["s3:ObjectCreated:*"]
+#     filter_prefix       = "RawLogs/"
+#   }
+# }
 
 resource "aws_s3_bucket_acl" "log-bucket-acl" {
   bucket = aws_s3_bucket.log-bucket.id
