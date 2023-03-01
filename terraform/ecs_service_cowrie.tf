@@ -8,6 +8,7 @@ resource "aws_ecs_task_definition" "cowrie-service-def" {
       {
         cpu         = 0
         image       = "${aws_ecr_repository.cowrie-repo.repository_url}:${var.cowrie_image_tag}"
+        essential = true
         environment = []
         logConfiguration = {
           logDriver = "awsfirelens"
@@ -38,9 +39,11 @@ resource "aws_ecs_task_definition" "cowrie-service-def" {
             protocol      = "tcp"
           },
         ]
-        essential = true
+        volumesFrom = []
+        mountPoints = []
       },
       {
+        cpu = 0
         name      = "log-router"
         image     = "${aws_ecr_repository.log-router-repo.repository_url}:latest"
         essential = true
@@ -70,6 +73,10 @@ resource "aws_ecs_task_definition" "cowrie-service-def" {
             awslogs-stream-prefix = "firelens-cowrie-sidecar"
           }
         }
+        mountPoints = []
+        portMappings = []
+        user = "0"
+        volumesFrom = []
       }
     ]
   )
@@ -84,6 +91,7 @@ resource "aws_ecs_task_definition" "cowrie-service-def" {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
   }
+  tags_all = {}
 }
 
 resource "aws_ecs_service" "cowrie-service" {

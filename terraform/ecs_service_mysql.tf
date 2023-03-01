@@ -8,12 +8,11 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
       {
         cpu   = 0
         image = "${aws_ecr_repository.mysql-honeypotd-repo.repository_url}:${var.mysql_honeypotd_image_tag}"
-        environment = [
-        ]
+        essential = true
+        environment = []
         logConfiguration = {
           logDriver = "awsfirelens"
-          options = {
-          }
+          options = {}
           secretOptions = []
         }
         name = "mysql-honeypotd-service"
@@ -24,9 +23,11 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
             protocol      = "tcp"
           }
         ]
-        essential = true
+        volumesFrom = []
+        mountPoints = []
       },
       {
+        cpu = 0
         name      = "log-router"
         image     = "${aws_ecr_repository.log-router-repo.repository_url}:latest"
         essential = true
@@ -56,6 +57,10 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
             awslogs-stream-prefix = "firelens-mysql-honeypotd-sidecar"
           }
         }
+        mountPoints = []
+        portMappings = []
+        user = "0"
+        volumesFrom = []
       }
     ]
   )
@@ -70,6 +75,7 @@ resource "aws_ecs_task_definition" "mysql-honeypotd-service-def" {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
   }
+  tags_all = {}
 }
 
 resource "aws_ecs_service" "mysql-honeypotd-service" {
