@@ -55,7 +55,7 @@ DOC
 
 resource "aws_cloudwatch_event_rule" "stop-pot-service-event" {
   name                = "stop-pot-service-event"
-  schedule_expression = "cron(0 0 * * ? *)"
+  schedule_expression = "cron(0 16 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "stop-pot-service-event-target" {
@@ -72,7 +72,7 @@ resource "aws_cloudwatch_event_target" "stop-pot-service-event-target" {
 
 resource "aws_cloudwatch_event_rule" "start-pot-service-event" {
   name                = "start-pot-service-event"
-  schedule_expression = "cron(5 0 * * ? *)"
+  schedule_expression = "cron(5 16 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "start-pot-service-event-target" {
