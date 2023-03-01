@@ -16,7 +16,7 @@ logger.addHandler(handler)
 logger.propagate = False
 
 S3_CLIENT = boto3.client('s3')
-OS_ENDPOIT = os.getenv('OS_ENDPOINT')
+OS_ENDPOINT = os.getenv('OS_ENDPOINT')
 
 
 def get_object_list(event):
@@ -76,7 +76,7 @@ def create_os_client():
                        os_region, service, session_token=credentials.token)
 
     os_client = OpenSearch(
-        hosts=[{'host': OS_ENDPOIT, 'port': 443}], http_auth=awsauth,
+        hosts=[{'host': OS_ENDPOINT, 'port': 443}], http_auth=awsauth,
         use_ssl=True, http_compress=True, verify_certs=True,
         retry_on_timeout=True, connection_class=RequestsHttpConnection,
         timeout=60)
@@ -97,22 +97,25 @@ def put_logs_to_opensearch(os_client, logdata):
 def lambda_handler(event, _):
     logger.info(event)
 
-    object_list = get_object_list(event)
-    parsed_data = []
-    for obj in object_list:
-        bucket = obj[0]
-        obj_key = obj[1]
-        object_body = get_object(bucket, obj_key)
-        if 'cowrie/' in obj_key:
-            parsed_data.extend(parse_cowrie_log(object_body))
+    if OS_ENDPOINT:
+        object_list = get_object_list(event)
+        parsed_data = []
+        for obj in object_list:
+            bucket = obj[0]
+            obj_key = obj[1]
+            object_body = get_object(bucket, obj_key)
+            if 'cowrie/' in obj_key:
+                parsed_data.extend(parse_cowrie_log(object_body))
 
-        elif 'mysql-honeypotd/' in obj_key:
-            parsed_data.extend(parse_mysql_honeypotd_log(object_body))
-        else:
-            raise Exception
+            elif 'mysql-honeypotd/' in obj_key:
+                parsed_data.extend(parse_mysql_honeypotd_log(object_body))
+            else:
+                raise Exception
 
-    os_client = create_os_client()
-    put_logs_to_opensearch(os_client, parsed_data)
+        os_client = create_os_client()
+        put_logs_to_opensearch(os_client, parsed_data)
+    else:
+        logger.warning('OS_ENDPOINT is not set.')
 
 
 if __name__ == "__main__":
