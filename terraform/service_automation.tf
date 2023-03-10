@@ -6,6 +6,7 @@ resource "aws_ssm_document" "stop-pot-services" {
 
   content = <<DOC
 schemaVersion: '0.3'
+description: 'Stop Honeypot Services'
 mainSteps:
   - name: 'StopCowrieService'
     action: 'aws:executeAwsApi'
@@ -33,6 +34,7 @@ resource "aws_ssm_document" "start-pot-services" {
 
   content = <<DOC
 schemaVersion: '0.3'
+description: 'Start Honeypot Services'
 mainSteps:
   - name: 'StartCowrieSerivce'
     action: 'aws:executeAwsApi'
@@ -58,31 +60,21 @@ resource "aws_cloudwatch_event_rule" "stop-pot-service-event" {
   schedule_expression = "cron(0 16 * * ? *)"
 }
 
-resource "aws_cloudwatch_event_target" "stop-pot-service-event-target" {
-  rule     = aws_cloudwatch_event_rule.stop-pot-service-event.name
+# resource "aws_cloudwatch_event_target" "stop-pot-service-event-target" {
+#   rule = aws_cloudwatch_event_rule.stop-pot-service-event.name
 
-  arn       = aws_ssm_document.stop-pot-services.arn
-  role_arn = aws_iam_role.ecs-service-automation-role.arn
-
-  run_command_targets {
-    key    = "tag:dummy"
-    values = ["dummy"]
-  }
-}
+#   arn      = aws_ssm_document.stop-pot-services.arn
+#   role_arn = aws_iam_role.ecs-service-automation-role.arn
+# }
 
 resource "aws_cloudwatch_event_rule" "start-pot-service-event" {
   name                = "start-pot-service-event"
   schedule_expression = "cron(5 16 * * ? *)"
 }
 
-resource "aws_cloudwatch_event_target" "start-pot-service-event-target" {
-  rule     = aws_cloudwatch_event_rule.start-pot-service-event.name
+# resource "aws_cloudwatch_event_target" "start-pot-service-event-target" {
+#   rule = aws_cloudwatch_event_rule.start-pot-service-event.name
 
-  arn       = aws_ssm_document.start-pot-services.arn
-  role_arn = aws_iam_role.ecs-service-automation-role.arn
-
-  run_command_targets {
-    key    = "tag:dummy"
-    values = ["dummy"]
-  }
-}
+#   arn      = aws_ssm_document.start-pot-services.arn
+#   role_arn = aws_iam_role.ecs-service-automation-role.arn
+# }
