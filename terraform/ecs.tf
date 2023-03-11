@@ -14,7 +14,7 @@ resource "aws_ecs_cluster" "honeypot-cluster" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "cluster-capacity" {
-  capacity_providers = ["FARGATE"]
+  capacity_providers = ["FARGATE_SPOT"]
   cluster_name       = aws_ecs_cluster.honeypot-cluster.name
 }
 
